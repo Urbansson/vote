@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core" xmlns:p="http://primefaces.org/ui"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+
+
+
+
+    <h:body>
+
+        <ui:composition template="/templates/main.xhtml">
+
+            <ui:define name="pageTitle">
+                Home
+            </ui:define>
+
+            <ui:define name="contentPrimary">
+                <div class="row">
+
+                    <div class="jumbotron">
+                        <h1>Welcome to Vote!</h1>
+                        <p>
+                            #{userBean.userData.firstName}
+                        </p>
+
+                    </div>
+                </div>
+                <br/>
+                <div class="row" >
+                    <div id="joinPoll" class="col-md-3 col-md-offset-2 btn  btn-primary"  style="font-size: 40px">Join a Poll</div>
+                    <div id="createPoll" class="col-md-3 col-md-offset-2 btn btn-primary" style="font-size: 40px">Create a Poll</div>
+                </div>
+
+                <!--
+                                <div class="row">
+
+<h:form class="col-md-4">
+<p:commandButton value="Ajax Submit" id="ajax" actionListener="" class="btn btn-primary" />
+</h:form>
+            </div>
+                -->
+            </ui:define>
+
+
+
+            <ui:define name="modal">
+
+                <div class="modal fade" id="joinModal">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title">Join a Poll</h4>
+                            </div>
+                            <h:form>
+                                <div class="modal-body" id="choices">
+
+                                    <div class="form-group">
+                                        <label for="newQtitle">Poll ID</label>
+                                        <p:inputText style="font-size: 40px; line-height: 40px; height: 66px;" type="number" id="newQtitle" value="#{findPollBean.joinPollId}" class="form-control input-lg" placeholder="Poll ID" tabindex="2"/>
+                                    </div>
+
+                                </div>
+                                <div class="modal-footer">
+                                    <p:commandButton partialSubmit="true" type="submit" class="btn btn-primary" value="Join" action="#{findPollBean.joinPoll}" onsuccess=""/>
+                                </div>
+                            </h:form>
+                        </div><!-- /.modal-content -->
+                    </div><!-- /.modal-dialog -->
+                </div><!-- /.modal -->
+
+                <div class="modal fade" id="createModal">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title">Create a Poll</h4>
+                            </div>
+                            <h:form>
+                                <div class="modal-body" id="choices">
+
+                                    <div class="form-group">
+                                        <label for="newQtitle">Title</label>
+                                        <p:inputText id="newQtitle" value="#{findPollBean.newPollName}" class="form-control" placeholder="Title" tabindex="2"/>
+
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="newQQuestion">Description</label>
+                                        <p:inputTextarea class="form-control" value="#{findPollBean.newPollInfo}" rows="4"/>
+                                    </div>
+
+
+                                </div>
+
+                                <div class="modal-footer">
+                                    <p:commandButton partialSubmit="true" type="submit" class="btn btn-primary" value="Create" action="#{findPollBean.createNewPoll}" onsuccess=""/>
+                                </div>
+                            </h:form>
+                        </div><!-- /.modal-content -->
+                    </div><!-- /.modal-dialog -->
+                </div><!-- /.modal -->
+            </ui:define>
+
+            <ui:define name="scripts">
+
+                <script>
+                    $("#joinPoll").click(function () {
+                        $('#joinModal').modal('toggle');
+                    });
+
+                    $("#createPoll").click(function () {
+                        $('#createModal').modal('toggle');
+                    });
+
+                </script>
+
+
+
+            </ui:define>
+
+
+        </ui:composition>
+
+    </h:body>
+
+</html>

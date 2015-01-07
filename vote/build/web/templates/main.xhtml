@@ -1,0 +1,196 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title><ui:insert name="pageTitle"></ui:insert></title>
+        <h:outputStylesheet library="bootstrap" name="css/bootstrap.min.css" />
+
+    </h:head>
+    <h:body>
+        <!-- Single button -->
+        <nav class="navbar navbar-default" role="navigation">
+            <div class="container-fluid">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="home.xhtml">Vote </a>
+                </div>
+
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav navbar-right"><br/></ul>
+                    <!--
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="#">Action</a></li>
+                            <li><a href="#">Another action</a></li>
+                            <li><a href="#">Something else here</a></li>
+                            <li class="divider"></li>
+                            <li><a href="#">Separated link</a></li>
+                            <li class="divider"></li>
+                            <li><a href="#">One more separated link</a></li>
+                        </ul>
+                    </li>
+                    -->
+                    <h:form>
+
+                        <ul class="nav navbar-nav navbar-right">
+                            <li><p:commandLink type="submit" action="#{userBean.logout}" value="Log Out" /></li>
+
+                        </ul>
+                    </h:form>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li><h:link outcome="find.xhtml" value="My Polls" /> </li>
+                    </ul>
+                    <h:form>
+
+                        <div class="form-group navbar-form navbar-right">
+                            <p:inputText type="text" id="search" value="#{findPollBean.joinPollId}" class="form-control" placeholder="Poll id"/>
+                            <p:commandButton style="margin-left: 5px;" type="submit" class="btn btn-default" value="Join"  action="#{findPollBean.joinPoll}"/>
+                        </div>
+                    </h:form>
+
+                </div><!-- /.navbar-collapse -->
+            </div><!-- /.container-fluid -->
+        </nav>
+
+        <div class="container">
+
+            <ui:insert name="contentPrimary">
+            </ui:insert>
+        </div>
+
+
+        <ui:insert name="modal">
+
+        </ui:insert>
+
+        <!-- Bootstrap core JavaScript
+================================================== -->
+        <!-- Placed at the end of the document so the pages load faster -->
+        <h:outputScript library="bootstrap" name="js/bootstrap.min.js" />
+        <h:outputScript library="primefaces" name="jquery/jquery.js" target="head" />
+        <h:outputScript library="bootstrap" name="js/bootstrap-growl.min.js" />
+
+        <!--
+                <script type="text/javascript" id="scriptcode">
+        
+                    function handlePollComplete(xhr, status, args) {
+                        console.log("Pollworked");
+                        console.log(args.unreadMessages);
+                        $("#friendsNotis").last().text(args.friendRequest)
+                        $("#messageNotis").last().text(args.unreadMessages)
+        
+                    }
+        
+                </script>
+        -->
+
+
+        <script>
+            $(document).ready(function () {
+
+                $.growl(false, {
+                    placement: {
+                        from: "top",
+                        align: "right"
+                    },
+                    offset: {
+                        x: 10,
+                        y: 50
+                    }
+                });
+
+            });
+        </script>
+
+        <script>
+            //http://130.237.84.127:8080
+            var user = "#{userBean.UID}";
+            var wsUri = "ws://130.237.84.127:8080/BackendVote/information/"+user;
+            var websocket = null;
+            $(document).ready(function () {
+
+                initWebSocket();
+
+            });
+
+            function initWebSocket()
+            {
+                if (websocket !== null) {
+                    websocket.close();
+                }
+
+                websocket = new WebSocket(wsUri);
+
+                websocket.onopen = function (evt) {
+                    onOpen(evt);
+                };
+                websocket.onclose = function (evt) {
+                    onClose(evt);
+                };
+                websocket.onmessage = function (evt) {
+                    onMessage(evt);
+                };
+                websocket.onerror = function (evt) {
+                    onError(evt);
+                };
+            }
+
+            function onOpen(evt)
+            {
+                //Send who this is so we can add to remote list
+
+            }
+
+            function onMessage(evt)
+            {
+
+                //parse out json from this and make a growl
+                
+                var obj = JSON.parse(evt.data);
+                $.growl({
+                    message: obj.message,
+                    //Set correct url
+                    url: "poll.xhtml?pollId="+obj.pollId
+                }, {
+                    url_target: '_self'
+                });
+
+            }
+
+            function doSend(message)
+            {
+                //Make JSON object with all data that is needed for this
+                websocket.send(message);
+            }
+
+            function onClose(evt)
+            {
+                //alert("Closed " + evt.data);
+
+            }
+
+            function onError(evt)
+            {
+                alert("Error " + evt.data);
+            }
+        </script>
+
+
+        <ui:insert name="scripts">
+
+        </ui:insert>
+    </h:body>
+</html>
+

@@ -1,0 +1,475 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core" xmlns:p="http://primefaces.org/ui"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+    <h:body>
+
+        <ui:composition template="/templates/main.xhtml">
+
+            <ui:define name="pageTitle">
+                Poll
+            </ui:define>
+
+            <ui:define name="contentPrimary">
+
+                <f:metadata>
+                    <f:viewParam name="pollId" value="#{questionBean.pollId}" />
+                    <f:viewAction action="#{questionBean.init}" />
+                </f:metadata>
+
+                <h:panelGroup id="ajaxArea" >
+
+                    <div class="row">
+                        <h1>#{questionBean.data.pollTitle} <button class="btn btn-default" id="infobutton" type="submit">info</button>
+
+                            <h:panelGroup rendered="#{questionBean.owner}" layout="block" >
+
+                                <button type="button" class="btn btn-default pull-right" id="newQuestion">New Question   </button>
+                            </h:panelGroup>
+                        </h1>                
+                    </div>
+
+                    <div class="row">
+
+
+                        <h:panelGroup rendered="#{(!questionBean.answered and questionBean.pressent) and !questionBean.owner}" layout="block" >
+
+                            <div class="col-md-9">
+                                <div class="panel panel-default" >
+                                    <div class="panel-heading">
+
+                                        <h:form>
+
+                                            <h4>#{questionBean.data.questionTitle}
+
+
+                                            </h4> 
+                                        </h:form>
+
+                                    </div>
+
+                                    <div class="panel-body">
+                                        <p>
+                                            #{questionBean.data.question}
+
+                                        </p>
+
+                                        <h:form>
+
+                                            <div class="btn-group btn-group-justified ">
+
+                                                <ui:repeat value="#{questionBean.data.choices}" var="question" varStatus="status">
+
+                                                    <p:commandLink type="submit" class="btn btn-default" value="#{question}" action="#{questionBean.answerQuestion(status.index)}" onsuccess="" update=":ajaxArea, :ajaxAreaScripts, :ajaxAreaModal"/>
+
+                                                </ui:repeat>
+
+                                            </div>
+
+                                        </h:form>
+
+                                    </div>
+                                </div>
+
+                            </div>
+                        </h:panelGroup>
+                        <h:panelGroup rendered="#{(questionBean.answered and questionBean.pressent) or (questionBean.owner and questionBean.pressent)}" layout="block">
+                            <div class="col-md-9">
+
+                                <div class="panel panel-default" >
+                                    <div class="panel-heading">
+                                        <h4>#{questionBean.data.questionTitle}
+                                            <button id="questionInfo" type="button" class="btn btn-default pull-right">Info   </button>
+
+                                        </h4> 
+                                    </div>
+
+                                    <div id="chartdiv" class="panel-body" style="
+                                         width		: 100%;
+                                         height		: 480px;
+                                         font-size	: 11px;">
+                                    </div>
+                                </div>  
+
+                            </div>
+                        </h:panelGroup>
+
+                        <h:panelGroup rendered="#{!questionBean.pressent}" layout="block">
+                            <div class="col-md-9">
+
+                                <div class="panel panel-default" >
+
+
+                                    <div id="nothinghereDiv" class="panel-body" style="
+                                         width		: 100%;
+                                         height		: 540px;
+                                         font-size	: 11px;">
+
+                                        <h1> There's nothing here yet! </h1>
+                                        <h4> Comeback later.</h4>
+
+                                    </div>
+                                </div>  
+
+                            </div>
+                        </h:panelGroup>
+
+                        <div class="col-md-3">
+                            <div class="panel panel-default">
+
+                                <div class="list-group-item" style="margin-bottom: 1px">
+                                    Members                                    
+                                </div>
+
+                                <div class="list-group" style="    overflow: auto   ;
+                                     height: 500px;">
+
+
+                                    <ui:repeat value="#{questionBean.data.questionMembers}" var="member" varStatus="status">
+
+                                        <div class="bs-example list-group-item">
+                                            <div class="media">
+                                                <a href="http://facebook.com/#{member.id}" class="pull-left">
+
+                                                    <img src="#{member.pictureUrl}" class="media-object img-circle img-responsive" alt="Sample Image"/>
+
+                                                </a>
+                                                <div class="media-body">
+
+
+                                                    <h4 class="media-heading">#{member.name}</h4> 
+
+
+                                                    <h:panelGroup layout="block" rendered="#{member.answered}">
+                                                        <span class="label label-success">Answered</span>
+                                                    </h:panelGroup>
+                                                    <h:panelGroup layout="block" rendered="#{!member.answered}">
+                                                        <span id="answeredLabel#{member.id}" class="label label-danger">Not Answered</span>
+                                                    </h:panelGroup>
+
+
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+
+                                    </ui:repeat>
+
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <nav>
+                        <h:form>
+
+                            <ul class="pager">
+
+                                <h:panelGroup rendered="#{questionBean.data.prevQId.length() == 0}">
+                                    <li class="previous disabled">
+                                        <p:commandLink  type="submit" value="&larr; Previous" action="#{questionBean.fetchPrevQuestion}" onsuccess=""></p:commandLink>
+                                    </li>
+                                </h:panelGroup>
+                                <h:panelGroup rendered="#{!(questionBean.data.prevQId.length() == 0)}">
+                                    <li class="previous">
+                                        <p:commandLink  type="submit" value="&larr; Previous" action="#{questionBean.fetchPrevQuestion}" onsuccess="" update=":ajaxArea, :ajaxAreaScripts, :ajaxAreaModal"></p:commandLink>
+                                    </li>
+                                </h:panelGroup>
+                                <h:panelGroup rendered="#{questionBean.data.nextQId.length() == 0}">
+                                    <li class="next disabled" >
+                                        <p:commandLink  type="submit" value="Next &rarr;" action="#{questionBean.fetchNextQuestion}" onsuccess=""></p:commandLink>
+                                    </li>
+                                </h:panelGroup>
+                                <h:panelGroup rendered="#{!(questionBean.data.nextQId.length() == 0)}">
+                                    <li class="next" >
+
+                                        <p:commandLink  type="submit" value="Next &rarr;" action="#{questionBean.fetchNextQuestion}" onsuccess="" update=":ajaxArea, :ajaxAreaScripts, :ajaxAreaModal"></p:commandLink>
+
+                                    </li>
+                                </h:panelGroup>
+                            </ul>
+                        </h:form>
+
+                    </nav>
+                </h:panelGroup>
+
+            </ui:define>
+
+
+
+            <ui:define name="modal">
+
+                <h:panelGroup id="ajaxAreaModal" >
+
+                    <div class="modal fade" id="questionModal">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                    <h4 class="modal-title">New Question</h4>
+                                </div>
+                                <h:form>
+                                    <div class="modal-body" id="choices">
+
+
+                                        <div class="form-group">
+                                            <label for="newQtitle">Title</label>
+                                            <p:inputText id="newQtitle" value="#{newQuestionBean.title}" class="form-control" placeholder="Title" tabindex="2"/>
+
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="newQQuestion">Question</label>
+                                            <p:inputTextarea class="form-control" value="#{newQuestionBean.question}" rows="4"/>
+                                        </div>
+
+                                        <div class="form-group " id="choice1">
+                                            <label for="newQtitle">Choice 1</label>
+                                            <p:inputText id="newQchoice1" value="#{newQuestionBean.choice1}" class="form-control" placeholder="Choice 1" tabindex="2"/>
+                                        </div>
+                                        <div class="form-group " id="choice2">
+                                            <label for="newQtitle">Choice 2</label>
+                                            <p:inputText id="newQchoice2" value="#{newQuestionBean.choice2}" class="form-control" placeholder="Choice 2" tabindex="2"/>
+                                        </div>
+                                        <div class="form-group " id="choice3"   >
+                                            <label for="newQtitle">Choice 3</label>
+                                            <p:inputText id="newQchoice3" value="#{newQuestionBean.choice3}" class="form-control" placeholder="Choice 3" tabindex="2"/>
+                                        </div>
+                                        <div class="form-group " id="choice4" style="display:none">
+                                            <label for="newQtitle">Choice 4</label>
+                                            <p:inputText id="newQchoice4" value="#{newQuestionBean.choice4}" class="form-control" placeholder="Choice 4" tabindex="2"/>
+                                        </div>
+                                        <div class="form-group " id="choice5" style="display:none">
+                                            <label for="newQtitle">Choice 5</label>
+                                            <p:inputText id="newQchoice5" value="#{newQuestionBean.choice5}" class="form-control" placeholder="Choice 5" tabindex="2"/>
+                                        </div>
+                                        <div class="form-group " id="choice6" style="display:none">
+                                            <label for="newQtitle">Choice 6</label>
+                                            <p:inputText id="newQchoice6" value="#{newQuestionBean.choice6}" class="form-control" placeholder="Choice 6" tabindex="2"/>
+                                        </div>
+
+
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button id="addChoice" type="button" class="btn btn-default pull-left">Add Choice</button>
+                                        <p:commandButton partialSubmit="true" type="submit" class="btn btn-primary" value="Create" action="#{newQuestionBean.createQuestion(questionBean.data.pollId)}" onsuccess="" />
+                                    </div>
+                                </h:form>
+                            </div><!-- /.modal-content -->
+                        </div><!-- /.modal-dialog -->
+                    </div><!-- /.modal -->
+
+                    <div class="modal fade" id="infoModal">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                    <h4 class="modal-title">Information</h4>
+                                </div>
+                                <h:form>
+                                    <div class="modal-body" id="choices">
+
+                                        <h5>Title: </h5>
+                                        <p>#{questionBean.data.pollTitle}</p>
+                                        <h5>Info: </h5>
+                                        <p>#{questionBean.data.pollInfo}</p>
+
+
+                                        <p><b>ID: </b>#{questionBean.data.pollId}</p>
+
+                                        <h5>Owner </h5>
+                                        <div class="bs-example list-group">
+                                            <div class="media">
+                                                <a href="http://www.facebook.com/#{questionBean.data.owner.id}" class="pull-left">
+                                                    <img src="#{questionBean.data.owner.pictureUrl}" class="media-object img-circle img-responsive" alt="Sample Image"/>
+                                                </a>
+                                                <div class="media-body">
+                                                    <h4 class="media-heading">#{questionBean.data.owner.name}</h4>
+
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button id="addChoice" type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                    </div>
+                                </h:form>
+                            </div><!-- /.modal-content -->
+                        </div><!-- /.modal-dialog -->
+                    </div><!-- /.modal -->
+
+
+
+
+                    <div class="modal fade" id="questionInfoModal">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                    <h4 class="modal-title">Information</h4>
+                                </div>
+                                <h:form>
+                                    <div class="modal-body" id="choices">
+
+                                        <h5>Title: </h5>
+                                        <p>#{questionBean.data.questionTitle}</p>
+                                        <h5>Question: </h5>
+                                        <p>#{questionBean.data.question}</p>
+
+                                        <p><b>ID: </b>#{questionBean.data.questionId}</p>
+
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button id="addChoice" type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                    </div>
+                                </h:form>
+                            </div><!-- /.modal-content -->
+                        </div><!-- /.modal-dialog -->
+                    </div><!-- /.modal -->
+                </h:panelGroup>
+
+            </ui:define>
+
+
+            <ui:define name="scripts">
+
+                <script type="text/javascript" src="http://www.amcharts.com/lib/3/amcharts.js"></script>
+                <script type="text/javascript" src="http://www.amcharts.com/lib/3/pie.js"></script>
+                <script type="text/javascript" src="http://www.amcharts.com/lib/3/themes/light.js"></script>
+                <h:panelGroup id="ajaxAreaScripts" >
+
+
+                    <script>
+                        var choices = 4;
+                        $("#addChoice").click(function () {
+                            var toShow = "#choice" + choices;
+                            $(toShow).show();
+                            choices++;
+                            if (choices > 6) {
+                                $("#addChoice").addClass("disabled");
+                            }
+                        });
+                    </script>
+
+
+                    <script>
+                        $("#newQuestion").click(function () {
+                            $('#questionModal').modal('toggle');
+                        });
+
+                        $("#infobutton").click(function () {
+                            $('#infoModal').modal('toggle');
+                        });
+
+                        $("#questionInfo").click(function () {
+                            $('#questionInfoModal').modal('toggle');
+                        });
+                    </script>
+
+
+                    <h:panelGroup rendered="#{questionBean.answered or (questionBean.owner and questionBean.pressent)}">
+
+                        <script>
+                            var chart = AmCharts.makeChart("chartdiv", {
+                                "type": "pie",
+                                "theme": "light",
+                                "legend": {
+                                    "markerType": "circle",
+                                    "position": "right",
+                                    "marginRight": 80,
+                                    "autoMargins": false
+                                },
+                                "dataProvider": #{questionBean.data.graphData},
+                                "valueField": "NrOfChoices",
+                                "titleField": "choice"
+                            });
+                        </script>
+
+
+                        <script>
+
+                            var GraphData = #{questionBean.data.graphData};
+                            var questionId = "#{questionBean.data.questionId}";
+                            var questionWsUri = "ws://130.237.84.127:8080/BackendVote/answerquestion/" + questionId;
+                            var questionWebSocket = null;
+
+                            $(document).ready(function () {
+
+                                QuestionInitWebSocket();
+
+                            });
+
+
+
+                            function QuestionInitWebSocket()
+                            {
+                                if (questionWebSocket !== null) {
+                                    questionWebSocket.close();
+                                }
+
+                                questionWebSocket = new WebSocket(questionWsUri);
+
+                                questionWebSocket.onmessage = function (evt) {
+                                    questiononmessage(evt);
+                                };
+                                questionWebSocket.onerror = function (evt) {
+                                    questiononerror(evt);
+                                };
+                            }
+
+                            function questiononmessage(evt)
+                            {
+                                var questionObj = JSON.parse(evt.data);
+
+                                var qId = questionObj.uId;
+                                var choice = questionObj.choice;
+
+                                var labelId = "#answeredLabel" + qId;
+                                $(labelId).removeClass("label-danger");
+                                $(labelId).addClass("label-success");
+                                $(labelId).text("Answered");
+
+
+                                var arrayLength = GraphData.length;
+                                for (var i = 0; i  &lt; arrayLength; i++) {
+                                    if (GraphData[i].NrOfChoices === "null") {
+                                        GraphData[i].NrOfChoices = 0;
+                                    }
+                                }
+
+                                GraphData[choice].NrOfChoices++;
+                                chart.dataProvider = GraphData;
+                                chart.validateData();
+
+                                console.log(choice);
+                                console.log(GraphData);
+
+                            }
+
+                            function questiononerror(evt)
+                            {
+                                alert("Error " + evt.data);
+                            }
+                        </script>
+
+
+                    </h:panelGroup>
+
+
+                </h:panelGroup>
+            </ui:define>
+
+
+        </ui:composition>
+
+    </h:body>
+
+</html>

@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core" xmlns:p="http://primefaces.org/ui"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+
+
+
+
+    <h:body>
+
+        <ui:composition template="/templates/main.xhtml">
+
+            <ui:define name="pageTitle">
+                Home
+            </ui:define>
+
+            <ui:define name="contentPrimary">
+
+                <f:metadata>
+                    <f:viewAction action="#{findPollBean.init}" />
+                </f:metadata>
+
+
+
+
+                <div class="row">
+
+                        <button id="createPoll" class="btn btn-default btn-primary pull-right" type="button">Create a Poll</button>
+
+                    <h1>
+                        Owner
+                    </h1>
+                    <div class="panel panel-default">
+
+                        <div class="list-group">
+
+                            <ui:repeat value="#{findPollBean.data.owned}" var="poll" varStatus="status">
+
+                                <div class="bs-example list-group-item">
+                                    <div class="media">
+                                        <div class="media-buttons pull-right">
+                                            <a class="btn btn-default btn-lg" href="poll.xhtml?pollId=#{poll.pollId}" role="button">More</a>
+                                        </div>
+                                        <div class="media-body">
+                                            <h4 class="media-heading">#{poll.pollTitle}<br/> <small><i>#{poll.owner}</i></small></h4>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </ui:repeat>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <h1>
+                        Member
+                    </h1>
+                    
+                    <h:panelGroup id="memberAjax">
+                    <div class="panel panel-default">
+
+
+                        <h:form>
+
+                            <ui:repeat value="#{findPollBean.data.member}" var="poll" varStatus="status">
+
+                                <div class="bs-example list-group-item">
+                                    <div class="media">
+                                        <div class="media-buttons pull-right">
+                                            <p:commandButton class="btn btn-danger btn-lg " value="Leave" action="#{findPollBean.leavePoll(poll.pollId)}" update=":memberAjax" onsuccess=""/>
+
+                                            <a class="btn btn-default btn-lg" href="poll.xhtml?pollId=#{poll.pollId}" role="button">More</a>
+                                        </div>
+                                        <div class="media-body">
+                                            <h4 class="media-heading">#{poll.pollTitle}<br/> <small><i>#{poll.owner}</i></small></h4>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </ui:repeat>
+                        </h:form>
+                    </div>
+                    </h:panelGroup>
+                </div>
+
+            </ui:define>
+
+
+            <ui:define name="modal">
+
+                <div class="modal fade" id="createModal">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title">Create a Poll</h4>
+                            </div>
+                            <h:form>
+                                <div class="modal-body" id="choices">
+
+                                    <div class="form-group">
+                                        <label for="newQtitle">Title</label>
+                                        <p:inputText id="newQtitle" value="#{findPollBean.newPollName}" class="form-control" placeholder="Title" tabindex="2"/>
+
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="newQQuestion">Description</label>
+                                        <p:inputTextarea class="form-control" value="#{findPollBean.newPollInfo}" rows="4"/>
+                                    </div>
+
+
+                                </div>
+
+                                <div class="modal-footer">
+                                    <p:commandButton partialSubmit="true" type="submit" class="btn btn-primary" value="Create" action="#{findPollBean.createNewPoll}" onsuccess=""/>
+                                </div>
+                            </h:form>
+                        </div><!-- /.modal-content -->
+                    </div><!-- /.modal-dialog -->
+                </div><!-- /.modal -->
+            </ui:define>
+
+
+
+            <ui:define name="scripts">
+                <script>
+                    $("#createPoll").click(function () {
+                        $('#createModal').modal('toggle');
+                    });
+
+                </script>
+            </ui:define>
+
+
+        </ui:composition>
+
+    </h:body>
+
+</html>
